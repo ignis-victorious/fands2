@@ -13,6 +13,11 @@ async def index() -> dict[str, str]:
     return {"This is": "root"}
 
 
+@app.get("/about")
+async def about() -> str:
+    return "This is your new page: About!"
+
+
 #  ________________
 #  Import LIBRARIES
 #  Import FILES
