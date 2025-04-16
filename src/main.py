@@ -24,9 +24,10 @@ async def bands(
 
     if genre:
         band_list = [b for b in band_list if b.genre.lower() == genre.value]
-        # return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
+
     if has_albums:
         band_list = [b for b in band_list if len(b.albums) > 0]
+
     return band_list
 
 
