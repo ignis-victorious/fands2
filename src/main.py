@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 
 #  Import FILES
 from .band_db import BANDS
-from .schema import GenreURLChoices, Album, Band
+from .schema import GenreURLChoices, Band
 #  ________________
 
 
@@ -17,12 +17,24 @@ async def index() -> dict[str, str]:
 
 
 @app.get("/bands")
-async def about() -> list[Band]:
-    return [Band(**b) for b in BANDS]
+async def bands(
+    genre: GenreURLChoices | None = None, has_albums: bool = False
+) -> list[Band]:
+    band_list: list[Band] = [Band(**b) for b in BANDS]
+
+    if genre:
+        band_list = [b for b in band_list if b.genre.lower() == genre.value]
+        # return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
+    if has_albums:
+        band_list = [b for b in band_list if len(b.albums) > 0]
+    return band_list
 
 
-# async def about() -> list[dict]:
-#     return BANDS
+# @app.get("/bands")
+# async def bands(genre: GenreURLChoices | None) -> list[Band]:
+#     if genre is None:
+#         return [Band(**b) for b in BANDS]
+#     return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
 
 
 @app.get("/bands/{band_id}")
@@ -34,22 +46,9 @@ async def band(band_id: int) -> Band | None:
     return band
 
 
-# async def band(band_id: int) -> dict | None:
-#     band: dict | None = next((b for b in BANDS if b["id"] == band_id), None)
-#     if band is None:
-#         #  Status code 404
-#         raise HTTPException(status_code=404, detail="Band not found!")
-#     return band
-
-
-@app.get("/bands/genre/{genre}")
-async def bands_for_genre(genre: GenreURLChoices) -> list[Band]:
-    return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
-
-
 # @app.get("/bands/genre/{genre}")
-# async def bands_for_genre(genre: GenreURLChoices) -> list[dict]:
-#     return [b for b in BANDS if b["genre"].lower() == genre.value]
+# async def bands_for_genre(genre: GenreURLChoices) -> list[Band]:
+#     return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
 
 
 #  ________________
