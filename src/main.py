@@ -1,10 +1,13 @@
 #  ________________
 #  Import LIBRARIES
+from typing import Any
 from fastapi import FastAPI, HTTPException
 
 #  Import FILES
 from .band_db import BANDS
-from .schema import GenreURLChoices, Band
+from .schema import GenreChoices, BandCreate, BandWithID
+# from .schema import GenreURLChoices, BandCreate, BandWithID
+# from .schema import GenreURLChoices, BandBase, BandCreate, BandWithID
 #  ________________
 
 
@@ -18,14 +21,22 @@ async def index() -> dict[str, str]:
 
 @app.get("/bands")
 async def bands(
-    genre: GenreURLChoices | None = None, has_albums: bool = False
-) -> list[Band]:
-    band_list: list[Band] = [Band(**b) for b in BANDS]
+    genre: GenreChoices | None = None, has_albums: bool = False
+) -> list[BandWithID]:
+    print("This is not an error one cannot correct!!!")
+    band_list: list[BandWithID] = [BandWithID(**b) for b in BANDS]
+
+    print(
+        f"Inside Bands - genre: {genre}has_albums: {has_albums}band_list: {band_list}"
+    )
 
     if genre:
+        print("Inside genre()")
         band_list = [b for b in band_list if b.genre.lower() == genre.value]
+        # band_list = [b for b in band_list if b.genre.value.lower() == genre.value]
 
     if has_albums:
+        print("Inside has_albums()")
         band_list = [b for b in band_list if len(b.albums) > 0]
 
     return band_list
@@ -38,18 +49,33 @@ async def bands(
 #     return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
 
 
+#  GET the Band with the given ID
 @app.get("/bands/{band_id}")
-async def band(band_id: int) -> Band | None:
-    band: Band | None = next((Band(**b) for b in BANDS if b["id"] == band_id), None)
+async def band(band_id: int) -> BandWithID | None:
+    band: BandWithID | None = next(
+        (BandWithID(**b) for b in BANDS if b["id"] == band_id), None
+    )
     if band is None:
         #  Status code 404
         raise HTTPException(status_code=404, detail="Band not found!")
     return band
 
 
-# @app.get("/bands/genre/{genre}")
-# async def bands_for_genre(genre: GenreURLChoices) -> list[Band]:
-#     return [Band(**b) for b in BANDS if b["genre"].lower() == genre.value]
+#  GET all bands of the define "genre"
+@app.get("/bands/genre/{genre}")
+async def bands_for_genre(genre: GenreChoices) -> list[BandWithID]:
+    # async def bands_for_genre(genre: GenreURLChoices) -> list[BandWithID]:
+    return [BandWithID(**b) for b in BANDS if b["genre"].lower() == genre.value.lower()]
+
+
+#  CREATE a Band
+@app.post("/bands")
+async def create_band(band_data: BandCreate) -> dict[str, Any]:
+    id: int = BANDS[-1]["id"] + 1
+    band: dict[str, Any] = BandWithID(id=id, **band_data.model_dump()).model_dump()
+    BANDS.append(band)
+
+    return band
 
 
 #  ________________
