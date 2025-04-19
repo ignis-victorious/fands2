@@ -18,14 +18,14 @@ class GenreChoices(Enum):
     CLASSIC = "Classical"
 
 
-# class GenreURLChoices(Enum):
-#     ROCK = "rock"
-#     ELECTRONIC = "electronic"
-#     METAL = "metal"
-#     HIP_HOP = "hip-hop"
-#     SHOEGAZE = "shoegaze"
-#     REGGAE = "reggae"
-#     CLASSIC = "classical"
+class GenreURLChoices(Enum):
+    ROCK = "rock"
+    ELECTRONIC = "electronic"
+    METAL = "metal"
+    HIP_HOP = "hip-hop"
+    SHOEGAZE = "shoegaze"
+    REGGAE = "reggae"
+    CLASSIC = "classical"
 
 
 class Album(BaseModel):
@@ -35,9 +35,9 @@ class Album(BaseModel):
 
 class BandBase(BaseModel):
     name: str
-    genre: GenreChoices
+    # genre: GenreChoices
     # genre: GenreURLChoices
-    # genre: str
+    genre: str
     albums: list[Album] = []
 
 
